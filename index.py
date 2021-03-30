@@ -97,8 +97,19 @@ def update_graph_scatter(input_data, click):
                 mode= 'lines+markers'
                 )
 
-        return [{'data': [data],'layout' : go.Layout(xaxis=dict(range=[min(X),max(X)]),
-                                                    yaxis=dict(range=[min(Y),max(Y)]),)}, False]
+        return [
+                    {
+                        'data': [data],
+                        'layout' : go.Layout(
+                                                xaxis=dict(range=[min(X),max(X)], title="Time (Milliseconds)"), 
+                                                yaxis=dict(range=[min(Y),max(Y)], title="Measured Voltage (Millivolts)"),
+                                                title="UF-FTU Captured Waveform",
+                                                
+                                            )
+                    }, 
+                    
+                    False
+                ]
         
 
 
