@@ -47,7 +47,7 @@ app.layout = html.Div(
 
 
 @app.callback(
-            [Output('live-graph', 'figure'), Output('live-graph','animate')],
+            [Output('live-graph', 'figure'), Output('live-graph','animate'), Output('graph-update','disabled')],
             [Input("graph-update", "n_intervals"), Input('submit-val', 'n_clicks')]
             )
 def update_graph_scatter(input_data, click):
@@ -56,23 +56,45 @@ def update_graph_scatter(input_data, click):
     global Y
     global old_clicks
         
+    #reset waveform
     if old_clicks != click:
         X = deque()
         Y = deque()
         counter = 0
         old_clicks = click
+        data = plotly.graph_objs.Scatter(
+            x=list(X),
+            y=list(Y),
+            name='Scatter',
+            mode= 'lines+markers'
+        )
+        return [
+                    {
+                        'data': [data],
+                        'layout' : go.Layout(
+                                                xaxis=dict(range=[0,0], title="Time (Milliseconds)"), 
+                                                yaxis=dict(range=[0,0], title="Measured Voltage (Millivolts)"),
+                                                title="UF-FTU Captured Waveform",
+                                                
+                                            )
+                    }, 
+                    
+                    False,
+                    False,
+                ]
+        
     
+    #if data points remain
     if counter < captured_data_points-1:
         counter += 1
         Y.append(results[counter][1])
         X.append(counter*100)
 
         data = plotly.graph_objs.Scatter(
-                x=list(X),
-                y=list(Y),
-                name='Scatter',
-                mode= 'lines+markers',
-                
+                    x=list(X),
+                    y=list(Y),
+                    name='Scatter',
+                    mode= 'lines+markers',
                 )
 
         return [
@@ -86,15 +108,17 @@ def update_graph_scatter(input_data, click):
                                             )
                     }, 
                     
-                    False
+                    False,
+                    False,
                 ]
     
+    #else if all data points are exhausted
     else:
         data = plotly.graph_objs.Scatter(
-                x=list(X),
-                y=list(Y),
-                name='Scatter',
-                mode= 'lines+markers'
+                    x=list(X),
+                    y=list(Y),
+                    name='Scatter',
+                    mode= 'lines+markers'
                 )
 
         return [
@@ -108,7 +132,8 @@ def update_graph_scatter(input_data, click):
                                             )
                     }, 
                     
-                    False
+                    False,
+                    True,
                 ]
         
 
