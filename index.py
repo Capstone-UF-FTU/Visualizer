@@ -39,12 +39,34 @@ app.layout = html.Div(
                   ),
         dcc.Interval(
             id='graph-update',
-            interval=1000
+            interval=50
         ),
         html.Button('Replay Captured Sample', id='submit-val', n_clicks=0),
+		dcc.Slider(
+			min=0,
+			max=10,
+			step=None,
+			marks={
+				0: '0 °V',
+				3: '3 °V',
+				5: '5 °V',
+				7.65: '7.65 °V',
+				10: '10 °V'
+			},
+			value=5
+		)  
     ]
 )
 
+
+def triangle(length, amplitude):
+     section = length // 4
+     for direction in (1, -1):
+         for i in range(section):
+             yield i * (amplitude / section) * direction
+         for i in range(section):
+             yield (amplitude - (i * (amplitude / section))) * direction
+			 
 
 @app.callback(
             [Output('live-graph', 'figure'), Output('live-graph','animate'), Output('graph-update','disabled')],
@@ -139,11 +161,12 @@ def update_graph_scatter(input_data, click):
 
 
 if __name__ == '__main__':
+    #global results
     with open("input.csv") as csvfile:
         reader = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC) # change contents to floats
         for row in reader: # each row is a list
             results.append(row)
-
+    #results = list(triangle(100, 50))
     captured_data_points = len(results)
     jump = captured_data_points / no_of_updates
     app.run_server(host='0.0.0.0', port=1200 ,debug=True)
